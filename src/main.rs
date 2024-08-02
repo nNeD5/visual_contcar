@@ -1,13 +1,24 @@
-use raylib::prelude::*;
+//use raylib::prelude::*;
 use std::fs;
 
-fn parse_poscar(path: &str) {
-    let content = fs::read_to_string(path)
-        .expect("Can't read {path}");
-    println!("{content}");
+fn parse_poscar(path: &str) -> Vec<Vec<f32>> {
+    fs::read_to_string(path)
+        .expect("Unable to read {path}")
+        .lines()
+        .skip(5)
+        .skip_while(|&l| !l.starts_with(['d', 'c', 'D', 'C']))
+        .skip(1)
+        .map(|l|
+            l.split_whitespace()
+                .filter_map(|i| i.trim().parse::<f32>().ok())
+                .collect::<Vec<_>>()
+        )
+        .collect()
 }
 
 fn main() {
+    //parse_poscar("POSCAR");
+    println!("{:?}", parse_poscar("POSCAR"));
     //let w = 1200;
     //let h = 800;
     //let r = 20.0;
