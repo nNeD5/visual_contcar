@@ -1,7 +1,8 @@
-use raylib::prelude::*;
 use std::{env, fs, process::ExitCode};
+use raylib::prelude::*;
+use crate::light::Light;
 
-// TODO: parse error
+pub mod light;
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -127,8 +128,8 @@ fn run_raylib(poses: &Vec<Vec<f32>>) {
     shader.locs_mut()[raylib::consts::ShaderLocationIndex::SHADER_LOC_VECTOR_VIEW as usize] =
         shader.get_shader_location("viewPos");
 
-    let ambientLoc = shader.get_shader_location("ambient");
-    shader.set_shader_value(ambientLoc, Vector4::new(0.2, 0.2, 0.2, 1.0));
+    let ambient_loc = shader.get_shader_location("ambient");
+    shader.set_shader_value(ambient_loc, Vector4::new(0.2, 0.2, 0.2, 1.0));
     point_model.materials_mut()[0].shader = *shader;
     let mut light = Light::new(
         rvec3(camera.position.x, camera.position.y + 0.5, camera.position.z),
@@ -151,38 +152,3 @@ fn run_raylib(poses: &Vec<Vec<f32>>) {
         }
    }
 }
-
-// ===== LIGHT =====
-#[derive(Debug, Copy, Clone)]
-pub struct Light {
-    pub position: Vector3,
-    pub target: Vector3,
-    pub color: raylib::color::Color,
-
-    pub position_loc: i32,
-    pub target_loc: i32,
-    pub color_loc: i32,
-}
-
-impl Light  {
-    pub fn new(positon: Vector3, targ: Vector3, color: Color, shader: &mut WeakShader) -> Self {
-        let mut light = Self {
-            position: positon.clone(),
-            target: targ.clone(),
-            color: color.clone(),
-
-            position_loc: shader.get_shader_location("light.position"),
-            target_loc: shader.get_shader_location("light.target"),
-            color_loc: shader.get_shader_location("light.color"),
-        };
-        light.update_light_values(shader);
-        light
-    }
-    pub fn update_light_values(&mut self, shader: &mut WeakShader) {
-        shader.set_shader_value(self.position_loc, self.position);
-        shader.set_shader_value(self.target_loc, self.target);
-        let color: Vector4 = self.color.into();
-        shader.set_shader_value(self.color_loc, color);
-    }
-}
-
