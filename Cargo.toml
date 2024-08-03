@@ -1,5 +1,5 @@
 [package]
-name = "visual_poscar"
+name = "visual_contcar"
 version = "0.1.0"
 edition = "2021"
 
