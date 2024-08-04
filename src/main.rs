@@ -93,9 +93,8 @@ fn run_raylib(poses: &Vec<Vec<f32>>) {
         }
         cp
     };
-    println!("centered_poses: {:?}", centered_poses);
 
-    let (mut rl, thread) = raylib::init().size(w, h).title("Model").build();
+    let (mut rl, thread) = raylib::init().size(w, h).resizable().log_level(TraceLogLevel::LOG_WARNING).title("Model").build();
     rl.set_target_fps(60);
     rl.disable_cursor();
 
@@ -115,10 +114,19 @@ fn run_raylib(poses: &Vec<Vec<f32>>) {
     };
 
     let mut shader = unsafe {
+        let exe_path = env::current_exe()
+            .expect("Unable path of executable");
+        let exe_dir = exe_path.parent()
+            .expect("Unable dir of executable")
+            .to_str()
+            .expect("Unable convert dir to &str")
+            .to_string();
+        let shader_vs = exe_dir.clone() + "/../../resources/lighting.vs";
+        let shader_fs = exe_dir + "/../../resources/lighting.fs";
         rl.load_shader(
             &thread,
-            Some("resources/lighting.vs"),
-            Some("resources/lighting.fs"),
+            Some(&shader_vs),
+            Some(&shader_fs),
         )
         .unwrap()
         .make_weak()
